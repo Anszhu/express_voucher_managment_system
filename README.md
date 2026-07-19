@@ -45,7 +45,7 @@ Backend requires `DATABASE_URL`, `JWT_ACCESS_SECRET`, and `JWT_REFRESH_SECRET`. 
 
 ## API
 
-- `POST /api/v1/auth/login`, `/refresh`, `/logout`
+- `POST /api/v1/auth/login`, `/refresh`, `/logout`; `GET /api/v1/auth/me`
 - `GET|POST /api/v1/vouchers`
 - `GET|PATCH|DELETE /api/v1/vouchers/:id`
 - `POST /api/v1/vouchers/:id/submit`, `/approve`, `/reject`
@@ -60,3 +60,5 @@ Employee users can create/edit their own draft vouchers and submit them. Directo
 ## Production notes
 
 Run `npm run typecheck` and `npm run build` in both application folders before deploying. Apply Prisma migrations against the target PostgreSQL database, provide unique high-entropy JWT secrets, use a persistent object store for uploads, and set `CORS_ORIGIN` to the deployed frontend URL.
+
+The API returns a request identifier with health and error responses and emits structured JSON logs through Pino. The included health smoke test can be run with `npm test` in `backend/`.
