@@ -15,11 +15,9 @@ process.env.JWT_REFRESH_SECRET =
   process.env.JWT_REFRESH_SECRET ?? 'test-refresh-secret-that-is-long-enough-for-tests';
 
 // Use local Postgres by default. For thorough testing, the DB must be running.
-const localDbUrl =
-  process.env.DATABASE_URL ??
-  `postgresql://${TEST_DB_USER}:${TEST_DB_PASSWORD}@localhost:${TEST_DB_PORT}/${TEST_DB_NAME}?schema=${TEST_DB_SCHEMA}`;
+const localDbUrl = `postgresql://${TEST_DB_USER}:${TEST_DB_PASSWORD}@localhost:${TEST_DB_PORT}/${TEST_DB_NAME}?schema=${TEST_DB_SCHEMA}`;
 
-process.env.DATABASE_URL = localDbUrl;
+process.env.DATABASE_URL ??= localDbUrl;
 
 const isCI = Boolean(process.env.GITHUB_ACTIONS) || Boolean(process.env.CI);
 const ensureDbIsReachable = async () => {

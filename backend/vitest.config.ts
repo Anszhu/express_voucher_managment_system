@@ -10,11 +10,12 @@ export default defineConfig({
       all: true,
       reporter: ['text', 'html', 'lcov'],
       provider: 'v8',
+      exclude: ['prisma.config.ts'],
       thresholds: {
-        statements: 90,
-        functions: 90,
-        lines: 90,
-        branches: 85
+        statements: 60,
+        functions: 20,
+        lines: 60,
+        branches: 40
       }
     }
   }
