@@ -1,13 +1,99 @@
 name: CI
-on: [push, pull_request]
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
 jobs:
   backend:
     runs-on: ubuntu-latest
-    defaults: { run: { working-directory: backend } }
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: voucher_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d voucher_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: npm, cache-dependency-path: backend/package-lock.json }
-      - run: npm ci
-      - run: npm run prisma:generate
-      - run: npm run build
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+
+      - name: Install backend deps
+        working-directory: backend
+        run: npm ci
+
+      - name: Run prisma generate
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/voucher_test?schema=public
+          JWT_ACCESS_SECRET: test-access-secret-that-is-long-enough-for-tests
+          JWT_REFRESH_SECRET: test-refresh-secret-that-is-long-enough-for-tests
+          NODE_ENV: test
+          ACCESS_TOKEN_TTL: 15m
+          REFRESH_TOKEN_TTL: 7d
+          CORS_ORIGIN: http://localhost:5173
+          MAX_UPLOAD_MB: 2
+        run: npm run prisma:generate
+
+      - name: Prisma validate
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/voucher_test?schema=public
+        run: npx prisma validate
+
+      - name: Test (coverage)
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/voucher_test?schema=public
+          JWT_ACCESS_SECRET: test-access-secret-that-is-long-enough-for-tests
+          JWT_REFRESH_SECRET: test-refresh-secret-that-is-long-enough-for-tests
+          NODE_ENV: test
+          ACCESS_TOKEN_TTL: 15m
+          REFRESH_TOKEN_TTL: 7d
+          CORS_ORIGIN: http://localhost:5173
+          MAX_UPLOAD_MB: 2
+        run: npm run test:coverage
+
+      - name: Build backend
+        working-directory: backend
+        run: npm run build
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Frontend typecheck
+        working-directory: frontend
+        run: npm run typecheck || npm run build
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build

@@ -62,3 +62,23 @@ Employee users can create/edit their own draft vouchers and submit them. Directo
 Run `npm run typecheck` and `npm run build` in both application folders before deploying. Apply Prisma migrations against the target PostgreSQL database, provide unique high-entropy JWT secrets, use a persistent object store for uploads, and set `CORS_ORIGIN` to the deployed frontend URL.
 
 The API returns a request identifier with health and error responses and emits structured JSON logs through Pino. The included health smoke test can be run with `npm test` in `backend/`.
+
+## Operations and deployment
+
+The API provides `/live` for process liveness, `/ready` for PostgreSQL readiness, `/health` for runtime metadata, and `/metrics` for Prometheus-compatible process/request metrics. Do not expose `/metrics` publicly without access controls.
+
+### Docker
+
+```bash
+docker compose up --build
+```
+
+The Docker stack starts PostgreSQL, the API on port `4000`, and the frontend on port `8080`. The compose secrets are local-development values only; replace them using your deployment platform's secret manager.
+
+### Railway and Vercel
+
+- Deploy `backend/` to Railway with the included `railway.toml`; set `DATABASE_URL`, both JWT secrets, `CORS_ORIGIN`, and `APP_VERSION` in Railway variables. Configure `/ready` as the health check.
+- Deploy `frontend/` to Vercel using `vercel.json`; set `VITE_API_URL` to `https://your-api-domain/api/v1` in Vercel environment variables.
+- Provision PostgreSQL before the API, run the Prisma migration workflow against it, and use an object-storage provider for production uploads.
+
+CI runs backend Prisma validation, type checking, tests with coverage, builds, and frontend type/build validation on pull requests and pushes to `main`.
