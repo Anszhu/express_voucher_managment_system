@@ -9,7 +9,11 @@ const login = async (email: string, password: string) => {
   return res;
 };
 
-describe('Auth API', () => {
+const DB_AVAILABLE = process.env.VITEST_DB_AVAILABLE === 'true';
+
+const describeIfDbAvailable = DB_AVAILABLE ? describe : describe.skip;
+
+describeIfDbAvailable('Auth API', () => {
   it('POST /api/v1/auth/login - returns tokens for valid credentials', async () => {
     const res = await login('employee@example.com', 'ChangeMe123!');
     expect(res.status).toBe(200);

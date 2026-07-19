@@ -2,9 +2,9 @@ import { beforeAll, afterAll } from 'vitest';
 import { execSync } from 'node:child_process';
 import { prisma } from '../lib/prisma.js';
 
-const TEST_DB_NAME = process.env.TEST_DB_NAME ?? 'voucher_test';
-const TEST_DB_USER = process.env.TEST_DB_USER ?? 'postgres';
-const TEST_DB_PASSWORD = process.env.TEST_DB_PASSWORD ?? 'postgres';
+const TEST_DB_NAME = process.env.TEST_DB_NAME ?? 'voucher_db';
+const TEST_DB_USER = process.env.TEST_DB_USER ?? 'voucher';
+const TEST_DB_PASSWORD = process.env.TEST_DB_PASSWORD ?? 'voucher';
 const TEST_DB_SCHEMA = process.env.TEST_DB_SCHEMA ?? 'public';
 const TEST_DB_PORT = Number(process.env.TEST_DB_PORT ?? 5432);
 
@@ -21,20 +21,32 @@ const localDbUrl =
 
 process.env.DATABASE_URL = localDbUrl;
 
+const isCI = Boolean(process.env.GITHUB_ACTIONS) || Boolean(process.env.CI);
 const ensureDbIsReachable = async () => {
   try {
     await prisma.$queryRaw`SELECT 1`;
-  } catch (err) {
-    throw new Error(
-      `Test database is not reachable at DATABASE_URL.\n` +
-        `DATABASE_URL=${process.env.DATABASE_URL}\n` +
-        `Please start a local PostgreSQL instance before running tests.`
-    );
+    return true;
+  } catch {
+    return false;
   }
 };
 
 beforeAll(async () => {
-  await ensureDbIsReachable();
+  const reachable = await ensureDbIsReachable();
+
+  if (!reachable && isCI) {
+    throw new Error(
+      `Test database is not reachable at DATABASE_URL in CI.\n` +
+        `DATABASE_URL=${process.env.DATABASE_URL}\n` +
+        `PostgreSQL service must be available for integration tests.`
+    );
+  }
+
+  // If DB isn't available locally, allow tests to decide to skip.
+  // Test suites will read this flag.
+  process.env.VITEST_DB_AVAILABLE = reachable ? 'true' : 'false';
+
+  if (!reachable) return;
 
   // Ensure schema exists for the test DB (uses Prisma schema).
   execSync('npx prisma db push --force-reset', { stdio: 'inherit', env: process.env });
