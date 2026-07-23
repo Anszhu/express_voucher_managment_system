@@ -46,5 +46,13 @@ function Dashboard() {
 }
 
 function PanelHeader({ title, action = 'This Week' }: { title: string; action?: string | false }) { return <div className="panel-header"><h3>{title}</h3>{action && <button className={action === 'This Week' ? 'select-button' : 'view-button'}>{action}{action === 'This Week' && <Icon name="chevron" />}</button>}</div>; }
-function App() { const [user, setUser] = useState<User | null>(() => JSON.parse(localStorage.getItem('user') || 'null')); const [token, setToken] = useState(() => localStorage.getItem('token') || ''); const set = (nextUser: User | null, nextToken: string) => { setUser(nextUser); setToken(nextToken); nextUser ? localStorage.setItem('user', JSON.stringify(nextUser)) : localStorage.removeItem('user'); nextToken ? localStorage.setItem('token', nextToken) : localStorage.removeItem('token'); }; return <Auth.Provider value={{ user, token, set }}>{user ? <Dashboard /> : <Login />}</Auth.Provider>; }
+function App() { 
+  const [user, setUser] = useState<User | null>(() => JSON.parse(localStorage.getItem('user') || 'null')); 
+  const [token, setToken] = useState(() => localStorage.getItem('token') || ''); 
+  const [dark, setDark] = useState(() => localStorage.getItem('dark') === 'true');
+  const set = (nextUser: User | null, nextToken: string) => { setUser(nextUser); setToken(nextToken); nextUser ? localStorage.setItem('user', JSON.stringify(nextUser)) : localStorage.removeItem('user'); nextToken ? localStorage.setItem('token', nextToken) : localStorage.removeItem('token'); }; 
+  const toggleDark = () => { setDark(prev => { const next = !prev; localStorage.setItem('dark', String(next)); return next; }); };
+  useEffect(() => { document.body.classList.toggle('dark-mode', dark); }, [dark]);
+  return <Auth.Provider value={{ user, token, set }}>{user ? <Dashboard /> : <Login />}</Auth.Provider>; 
+}
 createRoot(document.getElementById('root')!).render(<StrictMode><App /></StrictMode>);

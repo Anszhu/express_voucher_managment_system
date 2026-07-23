@@ -1,64 +1,81 @@
-# Express Voucher Management System — Implementation TODO
+# Express Voucher Management System — Frontend UI Modernization TODO
 
-## Phase 1 — FULL PROJECT AUDIT (closure)
-- [x] Inventory repo structure (backend/ frontend/ prisma/ routes/ services/ middleware/ uploads/ infra config)
-- [x] Identify existing features vs missing requirements
-- [x] Confirm high-level Phase 1→11 plan (approved)
+## CRITICAL RULES (MUST FOLLOW)
+- Do NOT change backend code, APIs, routes, middleware, services, database
+- Do NOT change business logic, auth flow, validation, state management
+- Do NOT rewrite working components — only modernize appearance
+- Preserve ALL existing functions, hooks, API calls, event handlers, state variables
+- Only create new files when they reduce duplication or improve maintainability
 
-## Phase 2 — POLISHED FRONTEND (foundations first)
-- [ ] Refactor frontend into routing + feature pages (without duplicating existing logic)
-- [ ] Add reusable UI primitives (Button/Input/Modal/Toast)
-- [ ] Add loading skeletons + empty states + error pages (404/403/500)
-- [ ] Add toast notifications + confirmation dialogs
-- [ ] Add dark mode + accessibility/keyboard navigation improvements
+## Phase 1 — CSS MODERNIZATION (Stripe/Supabase/Vercel Premium Design)
+- [ ] Rewrite styles.css with modern design system:
+  - Premium color palette (neutral grays, accent blues, semantic colors)
+  - Clean typography hierarchy (Inter font, proper sizing/spacing)
+  - Card-based layout with subtle shadows and border-radius
+  - Smooth transitions and hover animations
+  - Dark mode support (CSS variables toggled by class)
+  - Responsive design (mobile/tablet/desktop)
+  - Loading skeleton animations
+  - Toast notification styles
+  - Confirmation dialog styles
+  - Proper form styling (inputs, selects, textareas)
+  - Button variants (primary, secondary, danger, ghost, link)
+  - Table styling with hover states
+  - Badge/status chip styling
+  - Modal/overlay styling
+  - Navigation sidebar styling
+  - Top navbar styling
+  - Search bar styling
+  - Chart/stat card styling
+  - Activity feed styling
+  - Empty state styling
+- [ ] Add dark mode toggle (CSS class on root, no JS state changes to existing logic)
+- [ ] Add responsive breakpoints matching current structure
 
-## Phase 3 — AUTOMATED TESTING (coverage-first)
-- [ ] Backend unit tests for auth.service and voucher.service
-- [ ] Backend integration tests for auth.routes and voucher.routes (supertest)
-- [ ] Middleware tests: validate/authenticate/authorize/errorHandler
-- [ ] Repository/Prisma tests strategy (test DB setup)
-- [ ] Frontend tests: component + protected route/navigation (Testing Library)
-- [ ] Add/adjust Vitest config + coverage thresholds (>90%)
-- [ ] Add GitHub Actions workflow to run tests + typecheck + prisma validate/generate
+## Phase 2 — UI COMPONENT EXTRACTION (minimal, only where beneficial)
+- [ ] Extract Toast notification system (add to main.tsx as component, preserve all existing logic)
+- [ ] Extract Confirmation dialog (add to main.tsx as component)
+- [ ] Extract reusable StatusBadge component
+- [ ] Add loading skeleton states to dashboard (visual only, preserve data loading logic)
 
-## Phase 4 — STRUCTURED LOGGING (Pino)
-- [ ] Replace/standardize request/response logging with structured JSON
-- [ ] Ensure requestId and correlationId are present across logs and error responses
-- [ ] Add response time fields to logs
-- [ ] Remove any non-production-safe console usage
+## Phase 3 — STREAMLIT DASHBOARD MODERNIZATION
+- [ ] Update .streamlit/config.toml with premium theme
+- [ ] Update components/ui.py with modern styling matching React design
+- [ ] Update all pages with consistent premium look
 
-## Phase 5 — AUDIT TRAIL (DB-backed)
-- [ ] Add Prisma `AuditLog` model
-- [ ] Implement audit writer in services for:
-  - Voucher Created/Updated/Submitted/Approved/Rejected/Deleted
-  - Login/Logout/Password Change
-  - User Updated / Role Changed
-- [ ] Add admin API to fetch audit history
-- [ ] Add audit UI in Admin dashboard
+## Phase 4 — TESTING (Thorough)
+- [ ] Run backend tests: app.test.ts, auth.test.ts, voucher.workflow.test.ts
+- [ ] Run frontend typecheck: npm run typecheck
+- [ ] Run frontend build: npm run build
+- [ ] Test all API endpoints via curl:
+  - POST /api/v1/auth/login (valid + invalid credentials)
+  - POST /api/v1/auth/refresh
+  - POST /api/v1/auth/logout
+  - GET /api/v1/auth/me
+  - GET /api/v1/vouchers
+  - POST /api/v1/vouchers (create draft)
+  - GET /api/v1/vouchers/:id
+  - PATCH /api/v1/vouchers/:id
+  - DELETE /api/v1/vouchers/:id
+  - POST /api/v1/vouchers/:id/submit
+  - POST /api/v1/vouchers/:id/approve (DIRECTOR only)
+  - POST /api/v1/vouchers/:id/reject (DIRECTOR only)
+  - GET /api/v1/vouchers/dashboard
+  - GET /api/v1/users
+  - GET /api/v1/users/:id
+  - GET /health, /live, /ready, /metrics
+- [ ] Test role-based access (EMPLOYEE, DIRECTOR, ACCOUNTS)
+- [ ] Test error scenarios (invalid tokens, unauthorized access, validation errors)
+- [ ] Test frontend login/logout flow
+- [ ] Test frontend voucher creation
+- [ ] Test Streamlit dashboard login + all pages
+- [ ] Test responsive layout (mobile, tablet, desktop)
+- [ ] Test dark mode toggle
 
-## Phase 6 — DASHBOARD ANALYTICS (real backend data)
-- [ ] Extend backend analytics queries/endpoints (monthly expenses, dept expenses, trends, approval time, categories, recent activity)
-- [ ] Update dashboard UI to consume analytics endpoints
-
-## Phase 7 — CLOUD FILE STORAGE (provider-agnostic)
-- [ ] Introduce storage abstraction (adapter interface)
-- [ ] Implement local + one cloud provider adapter (config-driven)
-- [ ] Replace signature upload with storage-backed secure URL generation
-- [ ] Validate: size, mime types, duplicates
-
-## Phase 8 — DEPLOYMENT hardening
-- [ ] Add/verify GitHub Actions CI/CD
-- [ ] Verify Vercel + Railway + Docker readiness
-- [ ] Add deployment docs + env var validation
-
-## Phase 9 — README PROFESSIONALIZATION
-- [ ] Rewrite README with accurate, code-backed details (auth flow, RBAC, voucher workflow, swagger, setup, testing, deployment, diagrams)
-
-## Phase 10 — PORTFOLIO POLISH
-- [ ] Add GitHub badges/tags + releases notes
-- [ ] Add screenshots/GIF placeholders + update architecture diagrams
-
-## Phase 11 — FINAL QUALITY GATE
-- [ ] Run: npm install, lint, typecheck, build, prisma validate/generate/migrate/seed, test (coverage), docker build
-- [ ] Ensure no console.log, no TODO/FIXME, no secrets committed
-- [ ] Ensure GitHub Actions green
+## Phase 5 — FINAL QUALITY CHECKS
+- [ ] Ensure no console.log in production code
+- [ ] Ensure no TODO/FIXME comments
+- [ ] Ensure no secrets committed
+- [ ] Verify all tests pass
+- [ ] Verify frontend builds successfully
+- [ ] Verify backend compiles successfully
